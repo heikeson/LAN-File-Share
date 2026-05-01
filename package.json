@@ -1,0 +1,21 @@
+{
+  "name": "sharepythodev",
+  "version": "1.0.0",
+  "description": "局域网文件分享网站",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mime-types": "^2.1.35"
+  },
+  "keywords": [
+    "file-sharing",
+    "lan",
+    "file-server"
+  ],
+  "author": "",
+  "license": "MIT"
+}

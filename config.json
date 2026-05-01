@@ -1,0 +1,14 @@
+{
+  "port": 8080,
+  "host": "0.0.0.0",
+  "sharedFolders": [
+    {
+      "name": "默认分享",
+      "path": "D:/desktop/shair",
+      "description": "默认共享文件夹"
+    }
+  ],
+  "allowDownload": true,
+  "allowUpload": false,
+  "maxFileSize": 10737418240
+}
