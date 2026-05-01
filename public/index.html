@@ -775,7 +775,7 @@
       }, 3000);
     }
 
-    function copyFileLink(event, encodedPath) {
+    function copyFileLink(event) {
       event.stopPropagation();
       event.preventDefault();
       
@@ -927,8 +927,8 @@
       data.files.forEach(file => {
         const icon = getFileIcon(file.type, file.name);
         const canPreview = file.type.startsWith('image/') || file.type === 'application/pdf';
-        const encodedPath = encodeURIComponent(file.path);
-        const downloadUrl = `${window.location.origin}/api/download?folderIndex=${data.folderIndex}&path=${encodedPath}`;
+        const downloadUrl = `${window.location.origin}/d/${data.folderIndex}/${file.path}`;
+        const previewUrl = `/p/${data.folderIndex}/${file.path}`;
         
         html += `
           <div class="file-item">
@@ -942,17 +942,17 @@
             <div class="file-size">${file.size}</div>
             <div class="file-modified">${file.modified}</div>
             <div class="file-actions">
-              <button class="btn btn-secondary" onclick="copyFileLink(event, decodeURIComponent('${encodedPath}'))" data-url="${downloadUrl}" title="复制下载链接">
+              <button class="btn btn-secondary" onclick="copyFileLink(event)" data-url="${downloadUrl}" title="复制下载链接">
                 ${SVGIcons.link}
                 链接
               </button>
               ${canPreview ? `
-                <a href="/api/preview?folderIndex=${data.folderIndex}&path=${encodedPath}" target="_blank" class="btn btn-secondary">
+                <a href="${previewUrl}" target="_blank" class="btn btn-secondary">
                   ${SVGIcons.eye}
                   预览
                 </a>
               ` : ''}
-              <a href="/api/download?folderIndex=${data.folderIndex}&path=${encodedPath}" class="btn btn-primary">
+              <a href="${downloadUrl}" class="btn btn-primary">
                 ${SVGIcons.download}
                 下载
               </a>

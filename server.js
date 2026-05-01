@@ -110,81 +110,134 @@ app.get('/api/files', (req, res) => {
   });
 });
 
+/**
+ * 解析文件路径并验证权限
+ * @param {number} folderIndex - 文件夹索引
+ * @param {string} filePath - 文件相对路径
+ * @returns {Object} 包含 fullPath、folder、stats 或错误信息
+ */
+function resolveFile(folderIndex, filePath) {
+  const folder = config.sharedFolders[folderIndex];
+  if (!folder) {
+    return { error: '文件夹不存在', status: 404 };
+  }
+
+  const fullPath = path.resolve(folder.path, filePath);
+
+  if (!fullPath.startsWith(path.resolve(folder.path))) {
+    return { error: '禁止访问', status: 403 };
+  }
+
+  if (!fs.existsSync(fullPath)) {
+    return { error: '文件不存在', status: 404 };
+  }
+
+  const stats = fs.statSync(fullPath);
+  if (stats.isDirectory()) {
+    return { error: '不能操作文件夹', status: 400 };
+  }
+
+  if (config.maxFileSize && stats.size > config.maxFileSize) {
+    return { error: '文件过大', status: 400 };
+  }
+
+  return { fullPath, folder, stats };
+}
+
+/**
+ * 短链接下载文件
+ * @param {Object} req - Express 请求对象
+ * @param {Object} res - Express 响应对象
+ * 路由格式: /d/:folderIndex/* (例如: /d/0/folder/file.txt)
+ */
+app.get('/d/:folderIndex/*', (req, res) => {
+  if (!config.allowDownload) {
+    return res.status(403).json({ error: '下载已禁用' });
+  }
+
+  const folderIndex = parseInt(req.params.folderIndex);
+  const filePath = decodeURIComponent(req.params[0]);
+
+  if (!filePath) {
+    return res.status(400).json({ error: '文件路径不能为空' });
+  }
+
+  const result = resolveFile(folderIndex, filePath);
+  if (result.error) {
+    return res.status(result.status).json({ error: result.error });
+  }
+
+  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(path.basename(result.fullPath))}"`);
+  res.setHeader('Content-Length', result.stats.size);
+  res.setHeader('Content-Type', mime.lookup(result.fullPath) || 'application/octet-stream');
+
+  fs.createReadStream(result.fullPath).pipe(res);
+});
+
+/**
+ * 短链接预览文件
+ * @param {Object} req - Express 请求对象
+ * @param {Object} res - Express 响应对象
+ * 路由格式: /p/:folderIndex/* (例如: /p/0/folder/image.jpg)
+ */
+app.get('/p/:folderIndex/*', (req, res) => {
+  const folderIndex = parseInt(req.params.folderIndex);
+  const filePath = decodeURIComponent(req.params[0]);
+
+  if (!filePath) {
+    return res.status(400).json({ error: '文件路径不能为空' });
+  }
+
+  const result = resolveFile(folderIndex, filePath);
+  if (result.error) {
+    return res.status(result.status).json({ error: result.error });
+  }
+
+  res.setHeader('Content-Type', mime.lookup(result.fullPath) || 'application/octet-stream');
+
+  fs.createReadStream(result.fullPath).pipe(res);
+});
+
 app.get('/api/download', (req, res) => {
   if (!config.allowDownload) {
     return res.status(403).json({ error: '下载已禁用' });
   }
-  
+
   const folderIndex = parseInt(req.query.folderIndex) || 0;
   const filePath = req.query.path;
-  
+
   if (!filePath) {
     return res.status(400).json({ error: '文件路径不能为空' });
   }
-  
-  const folder = config.sharedFolders[folderIndex];
-  if (!folder) {
-    return res.status(404).json({ error: '文件夹不存在' });
+
+  const result = resolveFile(folderIndex, filePath);
+  if (result.error) {
+    return res.status(result.status).json({ error: result.error });
   }
-  
-  const fullPath = path.resolve(folder.path, filePath);
-  
-  if (!fullPath.startsWith(path.resolve(folder.path))) {
-    return res.status(403).json({ error: '禁止访问' });
-  }
-  
-  if (!fs.existsSync(fullPath)) {
-    return res.status(404).json({ error: '文件不存在' });
-  }
-  
-  const stats = fs.statSync(fullPath);
-  if (stats.isDirectory()) {
-    return res.status(400).json({ error: '不能下载文件夹' });
-  }
-  
-  if (config.maxFileSize && stats.size > config.maxFileSize) {
-    return res.status(400).json({ error: '文件过大' });
-  }
-  
-  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(path.basename(fullPath))}"`);
-  res.setHeader('Content-Length', stats.size);
-  res.setHeader('Content-Type', mime.lookup(fullPath) || 'application/octet-stream');
-  
-  fs.createReadStream(fullPath).pipe(res);
+
+  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(path.basename(result.fullPath))}"`);
+  res.setHeader('Content-Length', result.stats.size);
+  res.setHeader('Content-Type', mime.lookup(result.fullPath) || 'application/octet-stream');
+
+  fs.createReadStream(result.fullPath).pipe(res);
 });
 
 app.get('/api/preview', (req, res) => {
   const folderIndex = parseInt(req.query.folderIndex) || 0;
   const filePath = req.query.path;
-  
+
   if (!filePath) {
     return res.status(400).json({ error: '文件路径不能为空' });
   }
-  
-  const folder = config.sharedFolders[folderIndex];
-  if (!folder) {
-    return res.status(404).json({ error: '文件夹不存在' });
+
+  const result = resolveFile(folderIndex, filePath);
+  if (result.error) {
+    return res.status(result.status).json({ error: result.error });
   }
-  
-  const fullPath = path.resolve(folder.path, filePath);
-  
-  if (!fullPath.startsWith(path.resolve(folder.path))) {
-    return res.status(403).json({ error: '禁止访问' });
-  }
-  
-  if (!fs.existsSync(fullPath)) {
-    return res.status(404).json({ error: '文件不存在' });
-  }
-  
-  const stats = fs.statSync(fullPath);
-  if (stats.isDirectory()) {
-    return res.status(400).json({ error: '不能预览文件夹' });
-  }
-  
-  const mimeType = mime.lookup(fullPath);
-  res.setHeader('Content-Type', mimeType || 'application/octet-stream');
-  
-  fs.createReadStream(fullPath).pipe(res);
+
+  res.setHeader('Content-Type', mime.lookup(result.fullPath) || 'application/octet-stream');
+
+  fs.createReadStream(result.fullPath).pipe(res);
 });
 
 const PORT = config.port || 8080;
