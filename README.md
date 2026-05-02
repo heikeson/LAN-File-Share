@@ -12,6 +12,7 @@
 - ✅ 面包屑导航
 - ✅ 文件大小和修改时间显示
 - ✅ 安全路径验证，防止目录穿越
+- ✅ 短链接下载和预览（更简洁的分享链接）
 
 ## 快速开始
 
@@ -100,13 +101,31 @@ GET /api/files?folderIndex=0&path=/子文件夹
 ```
 
 ### 下载文件
+
+**传统 API 方式：**
 ```
 GET /api/download?folderIndex=0&path=/文件.txt
 ```
 
+**短链接方式（推荐）：**
+```
+GET /d/0/文件.txt
+GET /d/0/文件夹/子文件夹/文件.txt
+```
+
+短链接更简洁，适合分享和复制。路径会自动处理 URL 编码，支持中文和空格。
+
 ### 预览文件
+
+**传统 API 方式：**
 ```
 GET /api/preview?folderIndex=0&path=/图片.jpg
+```
+
+**短链接方式（推荐）：**
+```
+GET /p/0/图片.jpg
+GET /p/0/文件夹/图片.jpg
 ```
 
 ## 安全说明
@@ -124,8 +143,8 @@ GET /api/preview?folderIndex=0&path=/图片.jpg
 
 ## 系统要求
 
-- Node.js 12.0 或更高版本
-- Windows / macOS / Linux
+- Node.js 20.0 或更高版本
+- Windows 10 或更高版本
 
 ## 常见问题
 

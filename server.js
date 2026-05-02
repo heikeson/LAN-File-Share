@@ -251,7 +251,7 @@ app.listen(PORT, HOST, () => {
   allIPs.forEach((ip, index) => {
     const isLast = index === allIPs.length - 1;
     const prefix = isLast ? '└─' : '├─';
-    const lineText = `http://${ip.address}:8080 (${ip.name})`;
+    const lineText = `http://${ip.address}:${PORT} (${ip.name})`;
     const paddingLength = Math.max(0, 44 - lineText.length);
     const padding = ' '.repeat(paddingLength);
     ipLines += `║  ${prefix} ${lineText}${padding}║\n`;

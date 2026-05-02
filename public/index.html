@@ -927,8 +927,9 @@
       data.files.forEach(file => {
         const icon = getFileIcon(file.type, file.name);
         const canPreview = file.type.startsWith('image/') || file.type === 'application/pdf';
-        const downloadUrl = `${window.location.origin}/d/${data.folderIndex}/${file.path}`;
-        const previewUrl = `/p/${data.folderIndex}/${file.path}`;
+        const urlPath = file.path.replace(/\\/g, '/').split('/').map(encodeURIComponent).join('/');
+        const downloadUrl = `${window.location.origin}/d/${data.folderIndex}/${urlPath}`;
+        const previewUrl = `/p/${data.folderIndex}/${urlPath}`;
         
         html += `
           <div class="file-item">
