@@ -269,6 +269,7 @@
 
       bodyEl.innerHTML = '';
       bodyEl.classList.remove('is-md');
+      bodyEl.classList.remove('is-frame');
       document.getElementById('preview-md-toggle').style.display = isMarkdown ? '' : 'none';
       if (isImage) {
         const img = document.createElement('img');
@@ -293,6 +294,7 @@
         f.className = 'preview-frame';
         f.src = previewUrl;
         bodyEl.appendChild(f);
+        bodyEl.classList.add('is-frame');
       } else if (isText) {
         bodyEl.innerHTML = '<div class="preview-loading">正在加载文本…</div>';
         fetch(previewUrl).then(r => {

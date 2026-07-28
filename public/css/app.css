@@ -379,6 +379,9 @@ body {
   justify-content: flex-start;
   display: block;
 }
+.preview-body.is-frame {
+  padding: 0;
+}
 .markdown-body {
   width: 100%;
   max-width: 880px;

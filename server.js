@@ -219,7 +219,8 @@ app.get('/d/:folderIndex/*', (req, res) => {
   }
 
   const folderIndex = parseInt(req.params.folderIndex);
-  const filePath = decodeURIComponent(req.params[0]);
+  // req.params[0] 已由 Express 解码，无需再次 decodeURIComponent（重复解码会使含 % 的文件名抛 URIError）
+  const filePath = req.params[0];
 
   if (!filePath) {
     return res.status(400).json({ error: '文件路径不能为空' });
@@ -274,7 +275,8 @@ function decodeTextBuffer(buf) {
  */
 app.get('/p/:folderIndex/*', (req, res) => {
   const folderIndex = parseInt(req.params.folderIndex);
-  const filePath = decodeURIComponent(req.params[0]);
+  // req.params[0] 已由 Express 解码，无需再次 decodeURIComponent（重复解码会使含 % 的文件名抛 URIError）
+  const filePath = req.params[0];
 
   if (!filePath) {
     return res.status(400).json({ error: '文件路径不能为空' });
@@ -308,6 +310,13 @@ app.get('/p/:folderIndex/*', (req, res) => {
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   } else {
     res.setHeader('Content-Type', mimeType);
+  }
+
+  // SVG 在「新标签打开」时会被浏览器作为顶级文档渲染并可能执行其中脚本，
+  // 通过 sandbox 形式的 CSP 禁用脚本执行；站内 <img> 预览不受影响（img 加载的 SVG 不执行脚本）。
+  const isSvg = mimeType === 'image/svg+xml' || /\.svg$/i.test(fullPath);
+  if (isSvg) {
+    res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
   }
 
   const stream = fs.createReadStream(fullPath);
