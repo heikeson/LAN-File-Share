@@ -80,6 +80,15 @@
         <div class="loading">加载中…</div>
       </div>
     </main>
+
+    <!-- 页脚版权 -->
+    <footer class="app-footer">
+      <span>© 2026 kesonoasis</span>
+      <span class="app-footer-sep">·</span>
+      <span>仅供局域网内文件共享使用</span>
+      <span class="app-footer-sep">·</span>
+      <a class="app-footer-link" href="https://github.com/heikeson/LAN-File-Share" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>
+    </footer>
   </div>
 
   <!-- 切换文件夹模态框 -->
@@ -412,20 +421,6 @@
       });
     }
 
-    // ── 复制文件下载链接 ────────────────────────────────────
-    function copyFileLink(event, folderIndex, filePath) {
-      event.stopPropagation();
-      const btn = event.currentTarget;
-      const urlPath = filePath.replace(/\\/g, '/').split('/').map(encodeURIComponent).join('/');
-      const link = `${window.location.origin}/d/${folderIndex}/${urlPath}`;
-      copyText(link).then(() => {
-        showToast('下载链接已复制', 'success');
-        flashCopied(btn);
-      }).catch(() => {
-        showToast('复制失败，请手动复制：' + link, 'error');
-      });
-    }
-
     // 复制按钮内联成功反馈（绿色 + 文案切换，2 秒后恢复）
     function flashCopied(btn) {
       if (!btn || !btn.classList) return;
@@ -470,14 +465,14 @@
     function renderBreadcrumb() {
       const breadcrumbDiv = document.getElementById('breadcrumb');
       const segments = currentPath ? currentPath.split('/').filter(s => s.length > 0) : [];
-      let html = `<a href="javascript:void(0)" onclick="loadFiles(${currentFolderIndex}, '')"><svg class="home-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>根目录</a>`;
+      let html = `<a href="#" data-action="navigate" data-folder-index="${currentFolderIndex}" data-path=""><svg class="home-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>根目录</a>`;
       let accumulated = '';
       segments.forEach((seg, i) => {
         accumulated += (accumulated ? '/' : '') + seg;
         if (i === segments.length - 1) {
           html += `<span class="sep">/</span><span class="current">${escapeHtml(seg)}</span>`;
         } else {
-          html += `<span class="sep">/</span><a href="javascript:void(0)" onclick="loadFiles(${currentFolderIndex}, '${escapeHtml(accumulated)}')">${escapeHtml(seg)}</a>`;
+          html += `<span class="sep">/</span><a href="#" data-action="navigate" data-folder-index="${currentFolderIndex}" data-path="${escapeHtml(accumulated)}">${escapeHtml(seg)}</a>`;
         }
       });
       breadcrumbDiv.innerHTML = html;
@@ -507,7 +502,7 @@
       // 返回上级（非根目录且未搜索时显示）
       if (currentPath && !searchQuery) {
         html += `
-          <div class="file-item file-item-clickable" onclick="navigateUp()">
+          <div class="file-item file-item-clickable" data-action="navigate-up">
             <div class="file-icon folder-icon-color">${SVGIcons.back}</div>
             <div class="file-info">
               <div class="file-name">返回上级</div>
@@ -522,7 +517,7 @@
       // 文件夹
       folders.forEach(folder => {
         html += `
-          <div class="file-item file-item-clickable" onclick="loadFiles(${currentFolderIndex}, '${escapeHtml(currentPath ? currentPath + '/' + folder.name : folder.name)}')">
+          <div class="file-item file-item-clickable" data-action="navigate" data-folder-index="${currentFolderIndex}" data-path="${escapeHtml(currentPath ? currentPath + '/' + folder.name : folder.name)}">
             <div class="file-icon folder-icon-color">${SVGIcons.folder}</div>
             <div class="file-info">
               <div class="file-name">${escapeHtml(folder.name)}</div>
@@ -540,7 +535,7 @@
         const urlPath = (file.path || file.name).replace(/\\/g, '/').split('/').map(encodeURIComponent).join('/');
         const downloadUrl = `${window.location.origin}/d/${currentFolderIndex}/${urlPath}`;
         const previewBtn = canPreview(file.type, file.name)
-          ? `<button class="btn btn-secondary btn-sm" onclick="openPreview(${currentFolderIndex}, '${urlPath}', '${escapeHtml(file.type || '')}')">
+          ? `<button class="btn btn-secondary btn-sm" data-action="preview" data-folder-index="${currentFolderIndex}" data-path="${escapeHtml(urlPath)}" data-type="${escapeHtml(file.type || '')}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 预览
               </button>`
@@ -555,12 +550,12 @@
             <div class="file-size">${escapeHtml(file.size)}</div>
             <div class="file-modified">${escapeHtml(file.modified)}</div>
             <div class="file-actions">
-              <button class="btn btn-ghost btn-sm" onclick="copyFileLink(event, ${currentFolderIndex}, '${escapeHtml(file.path || file.name)}')">
+              <button class="btn btn-ghost btn-sm" data-action="copy-link" data-folder-index="${currentFolderIndex}" data-path="${escapeHtml(file.path || file.name)}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                 链接
               </button>
               ${previewBtn}
-              <button class="btn btn-primary btn-sm" onclick="window.open('${downloadUrl}')">
+              <button class="btn btn-primary btn-sm" data-action="download" data-download-url="${escapeHtml(downloadUrl)}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 下载
               </button>
@@ -584,6 +579,45 @@
       if (currentData) renderFileList(currentData);
     }
 
+    // ── 事件委派（data-* 属性替代 onclick，杜绝用户数据注入 JS 上下文导致 XSS） ──
+    function handleDelegatedClick(e) {
+      const target = e.target.closest('[data-action]');
+      if (!target) return;
+      if (target.tagName === 'A') e.preventDefault();
+
+      const action = target.dataset.action;
+      const idx = parseInt(target.dataset.folderIndex, 10);
+
+      switch (action) {
+        case 'navigate':
+          loadFiles(idx, target.dataset.path || '');
+          break;
+        case 'navigate-up':
+          navigateUp();
+          break;
+        case 'preview':
+          openPreview(idx, target.dataset.path, target.dataset.type);
+          break;
+        case 'download':
+          window.open(target.dataset.downloadUrl);
+          break;
+        case 'copy-link':
+          e.stopPropagation();
+          doCopyLink(target, idx, target.dataset.path);
+          break;
+      }
+    }
+
+    function doCopyLink(btn, folderIndex, filePath) {
+      const link = `${window.location.origin}/d/${folderIndex}/${filePath}`;
+      copyText(link).then(() => {
+        showToast('下载链接已复制', 'success');
+        flashCopied(btn);
+      }).catch(() => {
+        showToast('复制失败，请手动复制：' + link, 'error');
+      });
+    }
+
     // ── 事件绑定与初始化 ────────────────────────────────────
     document.getElementById('switch-folder-btn').addEventListener('click', openFolderModal);
     document.getElementById('folder-modal-close').addEventListener('click', closeFolderModalBtn);
@@ -595,6 +629,8 @@
     });
     document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
     document.getElementById('file-search').addEventListener('input', filterFiles);
+    document.getElementById('file-list').addEventListener('click', handleDelegatedClick);
+    document.getElementById('breadcrumb').addEventListener('click', handleDelegatedClick);
 
     window.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { closeFolderModalBtn(); closePreview(); }

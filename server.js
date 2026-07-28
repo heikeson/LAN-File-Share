@@ -3,12 +3,42 @@ const fs = require('fs');
 const path = require('path');
 const mime = require('mime-types');
 const { TextDecoder } = require('util');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf-8'));
 
 app.use(express.json());
 app.use(express.static('public'));
+
+// ── 安全配置 ────────────────────────────────────────────────
+app.disable('x-powered-by');
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      mediaSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      connectSrc: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: '请求过于频繁，请稍后再试' }
+});
+app.use('/api/', apiLimiter);
+app.use('/d/', apiLimiter);
+app.use('/p/', apiLimiter);
 
 function getAllIPs() {
   const interfaces = require('os').networkInterfaces();
@@ -43,21 +73,29 @@ function formatDateTime(date) {
   return d.toLocaleString('zh-CN');
 }
 
-function getFileList(folderPath, relativePath = '') {
+async function getFileList(folderPath, relativePath = '') {
+  const resolvedBase = path.resolve(folderPath);
   const fullPath = path.resolve(folderPath, relativePath);
   
-  if (!fs.existsSync(fullPath)) {
+  // 路径穿越校验：确保解析后的路径仍在共享文件夹内
+  if (fullPath !== resolvedBase && !fullPath.startsWith(resolvedBase + path.sep)) {
+    return { error: '禁止访问', files: [], folders: [] };
+  }
+  
+  try {
+    await fs.promises.access(fullPath);
+  } catch (e) {
     return { error: '文件夹不存在', files: [], folders: [] };
   }
   
-  const items = fs.readdirSync(fullPath, { withFileTypes: true });
+  const items = await fs.promises.readdir(fullPath, { withFileTypes: true });
   const files = [];
   const folders = [];
   
   for (const item of items) {
     if (item.name.startsWith('.')) continue;
     
-    const stats = fs.statSync(path.join(fullPath, item.name));
+    const stats = await fs.promises.stat(path.join(fullPath, item.name));
     const itemPath = path.join(relativePath, item.name);
     
     if (item.isDirectory()) {
@@ -90,10 +128,14 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/folders', (req, res) => {
-  res.json(config.sharedFolders);
+  // 不暴露绝对路径，仅返回名称和描述
+  res.json(config.sharedFolders.map(f => ({
+    name: f.name,
+    description: f.description
+  })));
 });
 
-app.get('/api/files', (req, res) => {
+app.get('/api/files', async (req, res) => {
   const folderIndex = parseInt(req.query.folderIndex) || 0;
   const folder = config.sharedFolders[folderIndex];
   const relativePath = req.query.path || '';
@@ -102,7 +144,7 @@ app.get('/api/files', (req, res) => {
     return res.status(404).json({ error: '文件夹不存在' });
   }
   
-  const fileList = getFileList(folder.path, relativePath);
+  const fileList = await getFileList(folder.path, relativePath);
   res.json({
     folderName: folder.name,
     folderDescription: folder.description,
@@ -123,9 +165,11 @@ function resolveFile(folderIndex, filePath) {
     return { error: '文件夹不存在', status: 404 };
   }
 
+  const resolvedBase = path.resolve(folder.path);
   const fullPath = path.resolve(folder.path, filePath);
 
-  if (!fullPath.startsWith(path.resolve(folder.path))) {
+  // 路径穿越校验：确保 path.resolve 后的路径在共享文件夹内
+  if (fullPath !== resolvedBase && !fullPath.startsWith(resolvedBase + path.sep)) {
     return { error: '禁止访问', status: 403 };
   }
 
@@ -133,7 +177,18 @@ function resolveFile(folderIndex, filePath) {
     return { error: '文件不存在', status: 404 };
   }
 
-  const stats = fs.statSync(fullPath);
+  // 解析符号链接的真实路径，防止通过 symlink 逃逸出共享文件夹
+  let realPath;
+  try {
+    realPath = fs.realpathSync(fullPath);
+  } catch (e) {
+    return { error: '文件不可访问', status: 403 };
+  }
+  if (realPath !== resolvedBase && !realPath.startsWith(resolvedBase + path.sep)) {
+    return { error: '禁止访问', status: 403 };
+  }
+
+  const stats = fs.statSync(realPath);
   if (stats.isDirectory()) {
     return { error: '不能操作文件夹', status: 400 };
   }
@@ -142,7 +197,14 @@ function resolveFile(folderIndex, filePath) {
     return { error: '文件过大', status: 400 };
   }
 
-  return { fullPath, folder, stats };
+  return { fullPath: realPath, folder, stats };
+}
+
+/**
+ * 清洗文件名，移除换行等控制字符，防止 HTTP 头注入
+ */
+function sanitizeFilename(name) {
+  return name.replace(/[\x00-\x1f\x7f]/g, '').replace(/["\\]/g, '_');
 }
 
 /**
@@ -168,11 +230,26 @@ app.get('/d/:folderIndex/*', (req, res) => {
     return res.status(result.status).json({ error: result.error });
   }
 
-  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(path.basename(result.fullPath))}"`);
+  // 下载专用大小限制（优先使用 maxDownloadSize，回退到 maxFileSize）
+  const maxDownload = config.maxDownloadSize || config.maxFileSize;
+  if (maxDownload && result.stats.size > maxDownload) {
+    return res.status(400).json({ error: '文件过大，不支持下载' });
+  }
+
+  const safeName = sanitizeFilename(path.basename(result.fullPath));
+  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(safeName)}"`);
   res.setHeader('Content-Length', result.stats.size);
   res.setHeader('Content-Type', mime.lookup(result.fullPath) || 'application/octet-stream');
 
-  fs.createReadStream(result.fullPath).pipe(res);
+  const stream = fs.createReadStream(result.fullPath);
+  stream.on('error', (err) => {
+    if (!res.headersSent) {
+      res.status(500).json({ error: '文件读取失败' });
+    } else {
+      res.end();
+    }
+  });
+  stream.pipe(res);
 });
 
 const TEXT_EXT = /\.(txt|md|markdown|json|js|ts|jsx|tsx|css|html?|xml|log|csv|ini|yml|yaml|py|java|c|cpp|h|hpp|sh|bat|cmd|sql|go|rs|php|rb)$/i;
@@ -211,10 +288,13 @@ app.get('/p/:folderIndex/*', (req, res) => {
   const fullPath = result.fullPath;
   const mimeType = mime.lookup(fullPath) || 'application/octet-stream';
   const isText = mimeType.startsWith('text/') || TEXT_EXT.test(fullPath);
+  // 阻止 HTML 文件在浏览器中执行，统一作为纯文本展示
+  const isHtml = mimeType === 'text/html' || /\.html?$/i.test(fullPath);
   const MAX_TEXT_BYTES = 20 * 1024 * 1024;
 
   // 文本文件：检测编码并统一转 UTF-8 输出（声明 charset=utf-8），避免浏览器按默认编码解析导致中文乱码
-  if (isText && result.stats && result.stats.size <= MAX_TEXT_BYTES) {
+  // HTML 文件同样按文本处理，防止 XSS / 钓鱼
+  if ((isText || isHtml) && result.stats && result.stats.size <= MAX_TEXT_BYTES) {
     try {
       const buf = fs.readFileSync(fullPath);
       const text = decodeTextBuffer(buf);
@@ -223,8 +303,22 @@ app.get('/p/:folderIndex/*', (req, res) => {
     } catch (e) { /* 转码失败则回退原始流 */ }
   }
 
-  res.setHeader('Content-Type', mimeType);
-  fs.createReadStream(fullPath).pipe(res);
+  // HTML 文件即使跳过文本解码也强制 text/plain
+  if (isHtml) {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  } else {
+    res.setHeader('Content-Type', mimeType);
+  }
+
+  const stream = fs.createReadStream(fullPath);
+  stream.on('error', (err) => {
+    if (!res.headersSent) {
+      res.status(500).json({ error: '文件读取失败' });
+    } else {
+      res.end();
+    }
+  });
+  stream.pipe(res);
 });
 
 const PORT = config.port || 8080;
