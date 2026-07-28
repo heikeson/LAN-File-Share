@@ -1,0 +1,122 @@
+/* ═══════════════════════════════════════════════════════════════
+   components.css — Design System Component Definitions
+   Auto-extracted from preview/component-*.html
+   DO NOT EDIT MANUALLY — regenerate via extract-components-css.mjs
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Button ────────────────────────────────────────────────── */
+/* @anatomy
+   <span class="label">主要按钮</span> <button class="btn btn-primary btn-sm">确认</button> <button class="btn btn-primary btn-md">确认提交</button> <button class="btn btn-primary btn-lg">立即开始</button>
+*/
+/* Component definitions — extracted to components.css */
+    .btn { display: inline-flex; align-items: center; justify-content: center; border: 1px solid transparent; cursor: pointer; font-family: var(--font-family-base); font-weight: 500; white-space: nowrap; transition: background .15s, border-color .15s; flex-shrink: 0; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-sm { height: var(--size-button-sm); min-width: var(--size-button-sm); padding: var(--space-1) var(--space-3); font-size: var(--font-size-caption); border-radius: var(--radius-sm); }
+    .btn-md { height: var(--size-button-md); min-width: var(--size-button-md); padding: var(--space-2) var(--space-5); font-size: var(--font-size-body); border-radius: var(--radius-md); }
+    .btn-lg { height: var(--size-button-lg); min-width: var(--size-button-lg); padding: var(--space-2) var(--space-5); font-size: 1.125rem; border-radius: var(--radius-md); }
+    .btn-primary { background: var(--color-primary); color: var(--color-on-primary); border-color: transparent; }
+    .btn-primary:hover { background: var(--color-primary-hover); }
+    .btn-primary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+    .btn-secondary { background: var(--secondary); color: var(--secondary-foreground); border-color: var(--color-border); }
+    .btn-secondary:hover { background: var(--surface-container-high); }
+    .btn-secondary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+    .btn-ghost { background: transparent; color: var(--color-primary); border-color: transparent; }
+    .btn-ghost:hover { background: var(--link-hover-bg); }
+    .btn-ghost:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+    .btn-destructive { background: var(--color-error); color: var(--destructive-foreground); border-color: transparent; }
+    .btn-destructive:hover { filter: brightness(1.08); }
+    .btn-destructive:focus-visible { outline: 2px solid var(--color-error); outline-offset: 2px; }
+
+/* ── Card ──────────────────────────────────────────────────── */
+/* @anatomy
+   <div class="card elevated" data-evidence-sample="Elevated Normal"> <h3 class="card-title">数据概览</h3> <p class="card-body">本月系统运行稳定，核心指标均达到预期目标，整体表现良好。</p> <div class="card-footer"> <button class="card-action">查看详情</button>
+*/
+/* Component definitions — extracted to components.css by deterministic script */
+  .card { background: var(--color-card); border-radius: var(--radius-lg); padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); width: 280px; flex-shrink: 0; transition: box-shadow .15s; }
+  .card.elevated { box-shadow: var(--shadow-1); }
+  .card.elevated:hover { box-shadow: var(--shadow-2); }
+  .card.flat { border: 1px solid var(--color-outline); }
+  .card.flat:hover { filter: brightness(0.97); }
+  .card.compact { padding: var(--space-3); }
+  .card-title { font-family: var(--font-heading); font-size: var(--font-size-h4); font-weight: var(--font-weight-h4); color: var(--color-on-surface); margin: 0; }
+  .card-body { font-size: var(--font-size-body); font-weight: var(--font-weight-body); line-height: var(--line-height-body); color: var(--color-on-surface-variant); margin: 0; }
+  .card-footer { display: flex; gap: var(--space-2); justify-content: flex-end; padding-top: var(--space-2); border-top: 1px solid var(--color-outline); }
+  .card-action { font-family: var(--font-family-base); font-size: var(--font-size-body); color: var(--color-primary); background: none; border: none; cursor: pointer; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); white-space: nowrap; transition: background .15s; }
+  .card-action:hover { background: var(--link-hover-bg); }
+
+/* ── Input ─────────────────────────────────────────────────── */
+/* @anatomy
+   <span class="label">默认</span> <div class="input-group"> <label class="input-label" for="inp-default">用户名</label> <input class="input" id="inp-default" type="text" placeholder="请输入用户名" data-evidence-sample="Text Default">
+*/
+.input-group { display: flex; flex-direction: column; gap: var(--space-1); flex: 1; min-width: 200px; }
+.input-label { font-size: 14px; color: var(--color-on-surface); }
+.input { height: var(--size-input-height); padding: 0 var(--space-3); border: 1px solid var(--color-outline); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-on-surface); font-family: var(--font-family-base); font-size: var(--font-size-body); outline: none; width: 100%; transition: border-color .15s; }
+.input::placeholder { color: var(--color-on-surface-variant); }
+.input:focus { border-color: var(--ring); box-shadow: 0 0 0 2px var(--ring); }
+.input:disabled { background: var(--color-surface-container); color: var(--color-on-surface-variant); cursor: not-allowed; }
+.input--error { border-color: var(--color-error); }
+.input--error:focus { border-color: var(--color-error); box-shadow: 0 0 0 2px var(--color-error); }
+.error-msg { font-size: var(--font-size-caption); color: var(--color-error); }
+.helper { font-size: var(--font-size-caption); color: var(--color-on-surface-variant); }
+.search-wrap { position: relative; flex: 1; min-width: 200px; }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.input--search { padding-left: 34px; }
+.textarea { min-height: 76px; padding: var(--space-3); border: 1px solid var(--color-outline); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-on-surface); font-family: var(--font-family-base); font-size: var(--font-size-body); outline: none; width: 100%; resize: vertical; transition: border-color .15s; }
+.textarea::placeholder { color: var(--color-on-surface-variant); }
+.textarea:focus { border-color: var(--ring); box-shadow: 0 0 0 2px var(--ring); }
+
+/* ── Modal ─────────────────────────────────────────────────── */
+/* @anatomy
+   <div class="modal-inline"> <span class="label">小尺寸</span> <div class="modal-backdrop"> <div class="modal modal-sm" data-evidence-sample="sm"> <div class="modal-header"> <span class="modal-title">确认删除</span> <button class="modal-close" aria-label="关闭"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">...
+*/
+/* Component definitions — extracted to components.css by deterministic script */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(38,54,64,0.4); display: flex; align-items: center; justify-content: center; z-index: 50; }
+.modal { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-4); display: flex; flex-direction: column; overflow: hidden; }
+.modal-sm { width: 360px; }
+.modal-md { width: 480px; }
+.modal-lg { width: 640px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5) var(--space-3); }
+.modal-title { font-family: var(--font-heading); font-size: var(--font-size-h4); font-weight: var(--font-weight-h4); line-height: var(--line-height-h4); color: var(--color-on-surface); }
+.modal-close { display: inline-flex; align-items: center; justify-content: center; width: var(--size-icon-lg); height: var(--size-icon-lg); border: none; background: none; cursor: pointer; color: var(--color-on-surface-variant); border-radius: var(--radius-sm); flex-shrink: 0; }
+.modal-close:hover { background: var(--muted); transition: background .15s; }
+.modal-body { padding: 0 var(--space-5) var(--space-4); font-family: var(--font-body); font-size: var(--font-size-body); font-weight: var(--font-weight-body); line-height: var(--line-height-body); color: var(--color-on-surface-variant); }
+.modal-footer { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); padding: var(--space-3) var(--space-5) var(--space-4); }
+.btn { display: inline-flex; align-items: center; justify-content: center; height: var(--size-button-md); padding: 0 var(--space-4); border: none; cursor: pointer; font-family: var(--font-body); font-size: var(--font-size-body); font-weight: 500; border-radius: var(--radius-md); white-space: nowrap; transition: background .15s, border-color .15s; }
+.btn-primary { background: var(--color-primary); color: var(--color-on-primary); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; color: var(--color-on-surface-variant); }
+.btn-ghost:hover { background: var(--muted); }
+.btn-destructive { background: var(--color-error); color: #ffffff; }
+.btn-destructive:hover { filter: brightness(1.08); }
+.modal-inline { position: relative; }
+.modal-inline .modal-backdrop { position: relative; border-radius: var(--radius-md); min-height: 260px; }
+
+/* ── Navigation ────────────────────────────────────────────── */
+/* @anatomy
+   <div class="row"><span class="label">水平导航</span>
+*/
+/* Component definitions — extracted to components.css by deterministic script */
+  .nav-h { display: flex; gap: var(--space-1); align-items: center; padding: var(--space-1) var(--space-3); background: var(--color-surface); border-bottom: 1px solid var(--color-outline); }
+  .nav-h-link { display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-2) var(--space-4); font-size: var(--font-size-body); font-weight: 500; color: var(--color-on-surface-variant); text-decoration: none; white-space: nowrap; border-radius: var(--radius-md); transition: background .15s, color .15s; }
+  .nav-h-link:hover { background: var(--link-hover-bg); color: var(--color-primary); }
+  .nav-h-link.active { color: var(--color-primary); background: var(--color-primary-container); }
+  .nav-v { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); background: var(--color-surface-container-low); border-radius: var(--radius-lg); width: 220px; }
+  .nav-v-link { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); font-size: var(--font-size-body); color: var(--color-on-surface-variant); text-decoration: none; white-space: nowrap; border-radius: var(--radius-md); transition: background .15s, color .15s; }
+  .nav-v-link:hover { background: var(--link-hover-bg); color: var(--color-primary); }
+  .nav-v-link.active { color: var(--color-primary); background: var(--color-primary-container); font-weight: 500; }
+  .nav-v-link-icon { width: var(--size-icon-md); height: var(--size-icon-md); flex-shrink: 0; }
+
+/* ── Tag ───────────────────────────────────────────────────── */
+/* @anatomy
+   <span class="tag tag-primary" data-evidence-sample="Primary Solid">进行中</span> <span class="tag tag-success">已完成</span> <span class="tag tag-warning">待审核</span> <span class="tag tag-error" data-evidence-sample="Error Solid">已拒绝</span> <span class="tag tag-info">通知</span>
+*/
+.tag { display: inline-flex; align-items: center; gap: var(--space-1); height: 24px; padding: 2px 10px; font-size: var(--font-size-caption); font-weight: 500; white-space: nowrap; line-height: 1; min-width: 24px; transition: filter .15s; }
+.tag-primary { background: var(--color-primary); color: var(--color-on-primary); }
+.tag-success { background: var(--color-success); color: #fff; }
+.tag-warning { background: var(--color-warning); color: #fff; }
+.tag-error { background: var(--color-error); color: #fff; }
+.tag-info { background: var(--color-info); color: #fff; }
+.tag:hover { filter: brightness(.92); }
+.tag-close { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; cursor: pointer; opacity: .7; transition: opacity .15s; }
+.tag-close:hover { opacity: 1; }
+.tag-close svg { width: 12px; height: 12px; }

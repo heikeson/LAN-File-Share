@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const mime = require('mime-types');
+const { TextDecoder } = require('util');
 
 const app = express();
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf-8'));
@@ -174,6 +175,20 @@ app.get('/d/:folderIndex/*', (req, res) => {
   fs.createReadStream(result.fullPath).pipe(res);
 });
 
+const TEXT_EXT = /\.(txt|md|markdown|json|js|ts|jsx|tsx|css|html?|xml|log|csv|ini|yml|yaml|py|java|c|cpp|h|hpp|sh|bat|cmd|sql|go|rs|php|rb)$/i;
+
+// 将文件字节解码为文本：优先 UTF-8，含大量替换符则回退 GBK，并去除 BOM，解决「新标签打开」中文乱码
+function decodeTextBuffer(buf) {
+  const utf8 = new TextDecoder('utf-8', { fatal: false }).decode(buf);
+  const replaced = utf8.split('\uFFFD').length - 1;
+  let text = utf8;
+  if (replaced > 0 && replaced * 20 > utf8.length) {
+    try { text = new TextDecoder('gbk').decode(buf); } catch (e) {}
+  }
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  return text;
+}
+
 /**
  * 短链接预览文件
  * @param {Object} req - Express 请求对象
@@ -193,51 +208,23 @@ app.get('/p/:folderIndex/*', (req, res) => {
     return res.status(result.status).json({ error: result.error });
   }
 
-  res.setHeader('Content-Type', mime.lookup(result.fullPath) || 'application/octet-stream');
+  const fullPath = result.fullPath;
+  const mimeType = mime.lookup(fullPath) || 'application/octet-stream';
+  const isText = mimeType.startsWith('text/') || TEXT_EXT.test(fullPath);
+  const MAX_TEXT_BYTES = 20 * 1024 * 1024;
 
-  fs.createReadStream(result.fullPath).pipe(res);
-});
-
-app.get('/api/download', (req, res) => {
-  if (!config.allowDownload) {
-    return res.status(403).json({ error: '下载已禁用' });
+  // 文本文件：检测编码并统一转 UTF-8 输出（声明 charset=utf-8），避免浏览器按默认编码解析导致中文乱码
+  if (isText && result.stats && result.stats.size <= MAX_TEXT_BYTES) {
+    try {
+      const buf = fs.readFileSync(fullPath);
+      const text = decodeTextBuffer(buf);
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      return res.send(Buffer.from(text, 'utf-8'));
+    } catch (e) { /* 转码失败则回退原始流 */ }
   }
 
-  const folderIndex = parseInt(req.query.folderIndex) || 0;
-  const filePath = req.query.path;
-
-  if (!filePath) {
-    return res.status(400).json({ error: '文件路径不能为空' });
-  }
-
-  const result = resolveFile(folderIndex, filePath);
-  if (result.error) {
-    return res.status(result.status).json({ error: result.error });
-  }
-
-  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(path.basename(result.fullPath))}"`);
-  res.setHeader('Content-Length', result.stats.size);
-  res.setHeader('Content-Type', mime.lookup(result.fullPath) || 'application/octet-stream');
-
-  fs.createReadStream(result.fullPath).pipe(res);
-});
-
-app.get('/api/preview', (req, res) => {
-  const folderIndex = parseInt(req.query.folderIndex) || 0;
-  const filePath = req.query.path;
-
-  if (!filePath) {
-    return res.status(400).json({ error: '文件路径不能为空' });
-  }
-
-  const result = resolveFile(folderIndex, filePath);
-  if (result.error) {
-    return res.status(result.status).json({ error: result.error });
-  }
-
-  res.setHeader('Content-Type', mime.lookup(result.fullPath) || 'application/octet-stream');
-
-  fs.createReadStream(result.fullPath).pipe(res);
+  res.setHeader('Content-Type', mimeType);
+  fs.createReadStream(fullPath).pipe(res);
 });
 
 const PORT = config.port || 8080;

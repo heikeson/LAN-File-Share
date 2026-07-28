@@ -1,0 +1,292 @@
+/*
+ * Kesonoasis Design Tokens — Fumadocs Dual-Theme
+ * Created: 2026-07-19
+ * Updated: 2026-07-19
+ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@400;600;700&display=swap');
+
+/* @group-priority: primary, success, warning, error, info */
+
+:root {
+  /* === Color Scales === */
+
+  /* primary */
+  --keso-primary-50: #eaf3fb; /* AI-generated */
+  --keso-primary-100: #d3e5f5; /* AI-generated */
+  --keso-primary-200: #a8d0ef; /* AI-generated */
+  --keso-primary-300: #7ab7e6; /* AI-generated */
+  --keso-primary-400: #559dd8; /* AI-generated */
+  --keso-primary-500: #3b82c4; /* AI-generated */
+  --keso-primary-600: #2f6ba3; /* AI-generated */ /* @primary */
+  --keso-primary-700: #265483; /* AI-generated */
+  --keso-primary-800: #1e3f65; /* AI-generated */
+  --keso-primary-900: #172c49; /* AI-generated */
+  --primary: var(--keso-primary-500); /* AI-generated */
+  --primary-foreground: #ffffff; /* AI-generated */
+  --link: var(--keso-primary-600); /* AI-generated */
+  --link-hover-bg: rgba(59,130,196,0.10); /* AI-generated */
+  --code-bg: rgba(59,130,196,0.08); /* AI-generated */
+  --selection-bg: rgba(59,130,196,0.18); /* AI-generated */
+  --quote-border: var(--keso-primary-400); /* AI-generated */
+  --search-border: var(--keso-neutral-200); /* AI-generated */
+  --search-focus-ring: var(--keso-primary-500); /* AI-generated */
+  --ring: var(--keso-primary-500); /* AI-generated */
+  --accent: var(--keso-primary-500); /* AI-generated */
+  --accent-foreground: #ffffff; /* AI-generated */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--link);
+  --color-on-primary: var(--primary-foreground);
+  --color-primary-container: var(--keso-primary-50);
+
+  /* neutral */
+  --keso-neutral-50: #f5f8fc; /* AI-generated */
+  --keso-neutral-100: #e8edf3; /* AI-generated */
+  --keso-neutral-200: #d1dae5; /* AI-generated */
+  --keso-neutral-300: #b0bfce; /* AI-generated */
+  --keso-neutral-400: #8a9fb3; /* AI-generated */
+  --keso-neutral-500: #6b8299; /* AI-generated */ /* @primary */
+  --keso-neutral-600: #536a82; /* AI-generated */
+  --keso-neutral-700: #415568; /* AI-generated */
+  --keso-neutral-800: #334454; /* AI-generated */
+  --keso-neutral-900: #263240; /* AI-generated */
+
+  /* success */
+  --keso-success-50: #edfcf3; /* AI-generated */
+  --keso-success-100: #d2f7e2; /* AI-generated */
+  --keso-success-200: #a8eec8; /* AI-generated */
+  --keso-success-300: #74dea8; /* AI-generated */
+  --keso-success-400: #42c88a; /* AI-generated */
+  --keso-success-500: #22b06e; /* AI-generated */ /* @primary */
+  --keso-success-600: #1a915b; /* AI-generated */
+  --keso-success-700: #157449; /* AI-generated */
+  --keso-success-800: #115b39; /* AI-generated */
+  --keso-success-900: #0b3d25; /* AI-generated */
+
+  /* warning */
+  --keso-warning-50: #fffbee; /* AI-generated */
+  --keso-warning-100: #fff3cd; /* AI-generated */
+  --keso-warning-200: #ffe49a; /* AI-generated */
+  --keso-warning-300: #ffd05e; /* AI-generated */
+  --keso-warning-400: #ffba2e; /* AI-generated */
+  --keso-warning-500: #f59e0b; /* AI-generated */ /* @primary */
+  --keso-warning-600: #d97706; /* AI-generated */
+  --keso-warning-700: #b45309; /* AI-generated */
+  --keso-warning-800: #92400e; /* AI-generated */
+  --keso-warning-900: #78350f; /* AI-generated */
+
+  /* error */
+  --keso-error-50: #fef2f2; /* AI-generated */
+  --keso-error-100: #fee2e2; /* AI-generated */
+  --keso-error-200: #fca5a5; /* AI-generated */
+  --keso-error-300: #f87171; /* AI-generated */
+  --keso-error-400: #ef4444; /* AI-generated */
+  --keso-error-500: #dc2626; /* AI-generated */ /* @primary */
+  --keso-error-600: #b91c1c; /* AI-generated */
+  --keso-error-700: #991b1b; /* AI-generated */
+  --keso-error-800: #7f1d1d; /* AI-generated */
+  --keso-error-900: #450a0a; /* AI-generated */
+
+  /* info */
+  --keso-info-50: #eff6ff; /* AI-generated */
+  --keso-info-100: #dbeafe; /* AI-generated */
+  --keso-info-200: #bfdbfe; /* AI-generated */
+  --keso-info-300: #93c5fd; /* AI-generated */
+  --keso-info-400: #60a5fa; /* AI-generated */
+  --keso-info-500: #3b82f6; /* AI-generated */ /* @primary */
+  --keso-info-600: #2563eb; /* AI-generated */
+  --keso-info-700: #1d4ed8; /* AI-generated */
+  --keso-info-800: #1e40af; /* AI-generated */
+  --keso-info-900: #1e3a8a; /* AI-generated */
+
+  /* surface */
+  --background: #f5f8fc; /* AI-generated */
+  --foreground: #363636; /* AI-generated */
+  --surface: #ffffff; /* AI-generated */
+  --surface-container-low: #f5f8fc; /* AI-generated */
+  --surface-container: #eef2f8; /* AI-generated */
+  --surface-container-high: #e8edf3; /* AI-generated */
+  --card: #ffffff; /* AI-generated */
+  --popover: #ffffff; /* AI-generated */
+  --muted: #e8edf3; /* AI-generated */
+  --muted-foreground: #6b8299; /* AI-generated */
+  --border: #d1dae5; /* AI-generated */
+  --secondary: var(--keso-neutral-100); /* AI-generated */
+  --secondary-foreground: #263240; /* AI-generated */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-variant: var(--surface-container-high);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-card: var(--card);
+  --color-on-surface: var(--foreground);
+  --color-on-surface-variant: var(--muted-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-outline: var(--border);
+  --color-border: var(--border);
+
+  /* semantic */
+  --destructive: var(--keso-error-500); /* AI-generated */
+  --destructive-foreground: #ffffff; /* AI-generated */
+  --success: var(--keso-success-500); /* AI-generated */
+  --warning: var(--keso-warning-500); /* AI-generated */
+  --error: var(--keso-error-500); /* AI-generated */
+  --info: var(--keso-info-500); /* AI-generated */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+
+  /* === Typography === */
+  --font-display: 'Source Serif 4', serif;
+  --font-heading: 'Source Serif 4', serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --font-size-display: 48px;
+  --font-size-h1: 36px;
+  --font-size-h2: 28px;
+  --font-size-h3: 22px;
+  --font-size-h4: 18px;
+  --font-size-body: 16px;
+  --font-size-lead: 18px;
+  --font-size-caption: 12px;
+  --font-size-mono: 14px;
+
+  --font-weight-display: 700;
+  --font-weight-h1: 700;
+  --font-weight-h2: 600;
+  --font-weight-h3: 600;
+  --font-weight-h4: 600;
+  --font-weight-body: 400;
+  --font-weight-lead: 400;
+  --font-weight-caption: 400;
+  --font-weight-mono: 400;
+
+  --line-height-display: 1.2;
+  --line-height-h1: 1.3;
+  --line-height-h2: 1.35;
+  --line-height-h3: 1.4;
+  --line-height-h4: 1.5;
+  --line-height-body: 1.6;
+  --line-height-lead: 1.7;
+  --line-height-caption: 1.5;
+  --line-height-mono: 1.6;
+
+  /* === Spacing === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* === Sizing === */
+  --size-icon-sm: 16px;
+  --size-icon-md: 20px;
+  --size-icon-lg: 24px;
+  --size-button-sm: 32px;
+  --size-input-height: 38px;
+  --size-button-md: 40px;
+  --size-button-lg: 48px;
+
+  /* === Radius === */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* === Shadows === */
+  --shadow-1: 0 1px 3px rgba(38,54,64,0.06), 0 1px 1px rgba(38,54,64,0.04); /* Card */
+  --shadow-2: 0 3px 8px rgba(38,54,64,0.08), 0 1px 2px rgba(38,54,64,0.05); /* Card Hover */
+  --shadow-3: 0 8px 20px rgba(38,54,64,0.10), 0 2px 4px rgba(38,54,64,0.06); /* Float */
+  --shadow-4: 0 16px 40px rgba(38,54,64,0.14), 0 4px 8px rgba(38,54,64,0.08); /* Modal */
+  --shadow-5: 0 24px 56px rgba(38,54,64,0.18), 0 6px 12px rgba(38,54,64,0.10); /* Overlay */
+
+  /* === Font family === */
+  --font-family-base: var(--font-body);
+}
+
+/* === Dark Theme === */
+.dark {
+  --keso-primary-100: #c5e0f5; /* AI-generated */
+  --keso-primary-200: #a8d0ef; /* AI-generated */
+  --keso-primary-300: #8dbad5; /* AI-generated */
+  --keso-primary-400: #7aa9c9; /* AI-generated */
+  --keso-primary-500: #559dd8; /* AI-generated */ /* @primary */
+  --primary: var(--keso-primary-400);
+  --primary-foreground: #e2e6eb; /* AI-generated */
+
+  --keso-neutral-50: #e2e6eb; /* AI-generated */
+  --keso-neutral-100: #cdd4dc; /* AI-generated */
+  --keso-neutral-200: #a8b5c2; /* AI-generated */
+  --keso-neutral-300: #7f8f9f; /* AI-generated */
+  --keso-neutral-400: #5d6f82; /* AI-generated */
+  --keso-neutral-500: #4a5c6e; /* AI-generated */ /* @primary */
+  --keso-neutral-600: #3d4e5e; /* AI-generated */
+  --keso-neutral-700: #344350; /* AI-generated */
+  --keso-neutral-800: #2c3a46; /* AI-generated */
+  --keso-neutral-900: #24313c; /* AI-generated */
+
+  --keso-success-500: #3cc98a; /* AI-generated */
+  --keso-warning-500: #fbbf24; /* AI-generated */
+  --keso-error-500: #f87171; /* AI-generated */
+  --keso-info-500: #60a5fa; /* AI-generated */
+
+  --background: #181a1d; /* AI-generated */
+  --foreground: #e2e6eb; /* AI-generated */
+  --surface: #212428; /* AI-generated */
+  --surface-container-low: #1e2124; /* AI-generated */
+  --surface-container: #262a2e; /* AI-generated */
+  --surface-container-high: #2e3338; /* AI-generated */
+  --card: #212428; /* AI-generated */
+  --popover: #262a2e; /* AI-generated */
+  --muted: #2e3338; /* AI-generated */
+  --muted-foreground: #8a9fb3; /* AI-generated */
+  --border: #3d4e5e; /* AI-generated */
+  --link-hover-bg: rgba(122,169,201,0.12); /* AI-generated */
+  --code-bg: rgba(122,169,201,0.10); /* AI-generated */
+  --selection-bg: rgba(122,169,201,0.20); /* AI-generated */
+  --quote-border: var(--keso-primary-400); /* AI-generated */
+  --search-border: var(--keso-neutral-700); /* AI-generated */
+  --search-focus-ring: var(--keso-primary-500); /* AI-generated */
+  --success: var(--keso-success-500);
+  --warning: var(--keso-warning-500);
+  --error: var(--keso-error-500);
+  --info: var(--keso-info-500);
+  --destructive: var(--keso-error-500);
+  --secondary: #2e3338; /* AI-generated */
+  --secondary-foreground: #cdd4dc; /* AI-generated */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-on-surface: var(--foreground);
+  --color-on-surface-variant: var(--muted-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--link);
+  --color-on-primary: var(--primary-foreground);
+  --color-primary-container: var(--keso-primary-50);
+  --color-outline: var(--border);
+  --color-border: var(--border);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+}
+
+/* === Typography Classes === */
+.keso-display { font-family: var(--font-display); font-size: 3rem; font-weight: var(--font-weight-display); line-height: var(--line-height-display); letter-spacing: -0.01em; }
+.keso-h1 { font-family: var(--font-heading); font-size: 2.25rem; font-weight: var(--font-weight-h1); line-height: var(--line-height-h1); }
+.keso-h2 { font-family: var(--font-heading); font-size: 1.75rem; font-weight: var(--font-weight-h2); line-height: var(--line-height-h2); }
+.keso-h3 { font-family: var(--font-heading); font-size: 1.375rem; font-weight: var(--font-weight-h3); line-height: var(--line-height-h3); }
+.keso-h4 { font-family: var(--font-heading); font-size: 1.125rem; font-weight: var(--font-weight-h4); line-height: var(--line-height-h4); }
+.keso-body { font-family: var(--font-body); font-size: 1rem; font-weight: var(--font-weight-body); line-height: var(--line-height-body); }
+.keso-lead { font-family: var(--font-body); font-size: 1.125rem; font-weight: var(--font-weight-lead); line-height: var(--line-height-lead); }
+.keso-caption { font-family: var(--font-body); font-size: 0.75rem; font-weight: var(--font-weight-caption); line-height: var(--line-height-caption); }
+.keso-mono { font-family: var(--font-mono); font-size: 0.875rem; font-weight: var(--font-weight-mono); line-height: var(--line-height-mono); }

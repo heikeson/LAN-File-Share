@@ -6,7 +6,11 @@
 
 - ✅ 支持配置多个分享文件夹
 - ✅ 文件浏览和下载
-- ✅ 图片、PDF 在线预览
+- ✅ 站内模态预览：图片、视频、音频、PDF、文本、Markdown
+- ✅ Markdown 文件渲染预览，支持「渲染 / 源码」一键切换
+- ✅ 一键复制下载链接（复制成功多重反馈，按钮变绿）
+- ✅ 当前文件夹名称与描述展示
+- ✅ 文本文件自动 UTF-8 / GBK 解码，避免中文乱码
 - ✅ 响应式设计，支持移动端
 - ✅ 文件类型图标识别
 - ✅ 面包屑导航
@@ -84,7 +88,9 @@ sharepythodev/
 ├── package.json         # 项目依赖配置
 ├── start.bat            # Windows 启动脚本
 ├── public/
-│   └── index.html       # 前端页面
+│   ├── index.html       # 前端页面
+│   ├── css/             # 设计系统与样式（components / app / colors_and_type）
+│   └── vendor/          # 浏览器端第三方库（markdown-it、DOMPurify）
 └── shared/              # 默认分享文件夹
 ```
 
@@ -102,12 +108,6 @@ GET /api/files?folderIndex=0&path=/子文件夹
 
 ### 下载文件
 
-**传统 API 方式：**
-```
-GET /api/download?folderIndex=0&path=/文件.txt
-```
-
-**短链接方式（推荐）：**
 ```
 GET /d/0/文件.txt
 GET /d/0/文件夹/子文件夹/文件.txt
@@ -117,16 +117,14 @@ GET /d/0/文件夹/子文件夹/文件.txt
 
 ### 预览文件
 
-**传统 API 方式：**
-```
-GET /api/preview?folderIndex=0&path=/图片.jpg
-```
-
-**短链接方式（推荐）：**
 ```
 GET /p/0/图片.jpg
 GET /p/0/文件夹/图片.jpg
 ```
+
+支持预览的类型：图片、视频、音频、PDF、文本（自动解码 UTF-8/GBK）以及 Markdown。
+Markdown 文件在站内模态中默认渲染为 HTML，可点击右上角按钮在「渲染 / 源码」之间切换；
+服务端会统一将文本以 `charset=utf-8` 返回，避免中文乱码。
 
 ## 安全说明
 
@@ -140,6 +138,7 @@ GET /p/0/文件夹/图片.jpg
 - **后端**: Node.js + Express
 - **前端**: 原生 HTML/CSS/JavaScript
 - **文件类型识别**: mime-types
+- **Markdown 渲染**: markdown-it + DOMPurify（渲染结果经 DOMPurify 净化，防止 XSS）
 
 ## 系统要求
 

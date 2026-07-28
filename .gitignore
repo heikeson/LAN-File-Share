@@ -4,4 +4,4 @@ node_modules/
 
 shared/
 
-package-lock.json
+pnpm-lock.yaml
